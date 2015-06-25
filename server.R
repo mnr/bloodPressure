@@ -79,14 +79,10 @@ shinyServer(function(input, output) {
     for (theIndex in 1:ncol(bPressures)) {
       bpCounts <- append(bpCounts,sum(bpDataSelectedByDates[,"condition"] == theIndex))
     }
-    
-    countAllSamples <- sum(bpCounts)
-    
-    bpPercents <- bpCounts / countAllSamples
-    
+            
     theBPTable <- data.frame(
       "Count" = bpCounts,
-      "Percent" = bpPercents
+      "Percent" = bpCounts / sum(bpCounts)
     )
     
     rownames(theBPTable) <- colnames(bPressures)
