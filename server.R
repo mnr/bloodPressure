@@ -18,6 +18,10 @@ bpressureData <-na.omit(bpressureData)
 oldestSampleDate <- min(bpressureData[,"Timestamp"],na.rm=TRUE)
 youngestSampleDate <- max(bpressureData[,"Timestamp"],na.rm=TRUE)
 
+d <- as.POSIXlt(youngestSampleDate)
+d$year <- d$year-1
+todayMinusTwelveMonths <- as.Date(d)
+
 # build a data table of all of the different blood pressure ranges and their names
 bPressures <- data.frame(
   "Hypotension"= c(90,60),
@@ -60,7 +64,7 @@ shinyServer(function(input, output) {
   
   output$SecondDateRangeSelector <- renderUI({
     dateRangeInput("secondBpDates", label = h3("Date range"),
-                   start=oldestSampleDate,end=youngestSampleDate,
+                   start=todayMinusTwelveMonths,end=youngestSampleDate,
                    min=oldestSampleDate,max=youngestSampleDate)
   })
   
@@ -98,9 +102,7 @@ shinyServer(function(input, output) {
   buildAPlot <- function(useTheseDates) {
     bpDataSelectedByDates <- getBPSubset(useTheseDates)
     
-    boxplot(bpDataSelectedByDates[,"systolic"],xlab="Systolic",
-            ylim=c(80,200)
-            )
+    boxplot(bpDataSelectedByDates[,"systolic"],ylim=c(80,200),main="Systolic")
     for (bpCondIdx in 1:ncol(bPressures)) {
       yoffset <- bPressures["systolic",bpCondIdx]
       abline(h=yoffset,col="red")
