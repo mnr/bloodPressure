@@ -32,10 +32,11 @@ bPressures <- data.frame(
   "Hypertensive emergency" = c(999,999)
 )
 rownames(bPressures) <- c("systolic","diastolic")
+numOfbpConditions <- ncol(bPressures)
 
 # add a column indicating the index of bPressures for systolic and diastolic
 # this will pick the worst case scenario for systolic and diastolic conditions
-for (bpCondIdx in ncol(bPressures):1) {
+for (bpCondIdx in numOfbpConditions:1) {
   for (bpDataIdx in 1:nrow(bpressureData)) {
     if (bpressureData[bpDataIdx,"systolic"] < bPressures["systolic",bpCondIdx]) {
       bpressureData[bpDataIdx,"condition"] <-  bpCondIdx
@@ -80,7 +81,7 @@ shinyServer(function(input, output) {
     bpDataSelectedByDates <- getBPSubset(useTheseDates)
     bpCounts <- numeric()
     
-    for (theIndex in 1:ncol(bPressures)) {
+    for (theIndex in 1:numOfbpConditions) {
       bpCounts <- append(bpCounts,sum(bpDataSelectedByDates[,"condition"] == theIndex))
     }
             
@@ -103,10 +104,11 @@ shinyServer(function(input, output) {
     bpDataSelectedByDates <- getBPSubset(useTheseDates)
     
     boxplot(bpDataSelectedByDates[,"systolic"],ylim=c(80,200),main="Systolic")
-    for (bpCondIdx in 1:ncol(bPressures)) {
+    for (bpCondIdx in 1:numOfbpConditions) {
       yoffset <- bPressures["systolic",bpCondIdx]
+      textOffset <- yoffset - 5
+      text(x=1,y=textOffset,labels=colnames(bPressures[bpCondIdx]),col="black")
       abline(h=yoffset,col="red")
-      text(x=1,y=yoffset,labels=colnames(bPressures[bpCondIdx]),col="black")
     }
   }
   
@@ -115,7 +117,7 @@ shinyServer(function(input, output) {
   
   #   output$secondBoxplotSystolic <- renderPlot( {
   #     boxplot(bpressureData[,"systolic"],xlab="Systolic")
-  #     for (bpCondIdx in 1:ncol(bPressures)) {
+  #     for (bpCondIdx in 1:numOfbpConditions) {
   #       yoffset <- bPressures["systolic",bpCondIdx]
   #       abline(h=yoffset,col="red")
   #       text(x=1,y=yoffset,labels=colnames(bPressures[bpCondIdx]),col="black")
